@@ -37,8 +37,14 @@ default["nova"]["service_role"] = "admin"
 # that is in the paste INI files.
 default["nova"]["pki"]["signing_dir"] = "/tmp/nova-signing-dir"
 
-default["nova"]["user"] = "nova"
-default["nova"]["group"] = "nova"
+case platform
+when "fedora", "redhat", "centos", "ubuntu"
+  default["nova"]["user"] = "nova"
+  default["nova"]["group"] = "nova"
+when "suse"
+  default["nova"]["user"] = "openstack-nova"
+  default["nova"]["group"] = "openstack-nova"
+end
 
 # Logging stuff
 default["nova"]["syslog"]["use"] = false
@@ -173,7 +179,7 @@ default["nova"]["api"]["auth"]["cache_dir"] = "/var/cache/nova/api"
 default["nova"]["ceilometer-api"]["auth"]["cache_dir"] = "/var/cache/nova/ceilometer-api"
 
 case platform
-when "fedora", "redhat", "centos" # :pragma-foodcritic: ~FC024 - won't fix this
+when "fedora", "redhat", "centos", "suse" # :pragma-foodcritic: ~FC024 - won't fix this
   default["nova"]["platform"] = {
     "api_ec2_packages" => ["openstack-nova-api"],
     "api_ec2_service" => "openstack-nova-api",
@@ -203,6 +209,10 @@ when "fedora", "redhat", "centos" # :pragma-foodcritic: ~FC024 - won't fix this
     "iscsi_helper" => "ietadm",
     "package_overrides" => ""
   }
+  if platform == "suse"
+    default["nova"]["platform"]["common_packages"] = ["openstack-nova"]
+  end
+
 when "ubuntu"
   default["nova"]["platform"] = {
     "api_ec2_packages" => ["nova-api-ec2"],
