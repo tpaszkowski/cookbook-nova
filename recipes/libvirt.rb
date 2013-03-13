@@ -37,6 +37,12 @@ bash "create libvirtd group" do
   only_if { platform? %w{fedora redhat centos} }
 end
 
+group "libvirt" do
+  append true
+  action :create
+  only_if { platform? %w{suse} }
+end
+
 # oh redhat
 # http://fedoraproject.org/wiki/Getting_started_with_OpenStack_EPEL#Installing_within_a_VM
 # ln -s /usr/libexec/qemu-kvm /usr/bin/qemu-system-x86_64
@@ -76,7 +82,8 @@ template "/etc/libvirt/libvirtd.conf" do
   group  "root"
   mode   00644
   variables(
-    :auth_tcp => node["nova"]["libvirt"]["auth_tcp"]
+    :auth_tcp => node["nova"]["libvirt"]["auth_tcp"],
+    :unix_sock_group => node["nova"]["libvirt"]["unix_sock_group"]
   )
 
   notifies :restart, "service[libvirt-bin]", :immediately
