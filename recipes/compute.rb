@@ -22,8 +22,7 @@ class ::Chef::Recipe
 end
 
 include_recipe "nova::nova-common"
-include_recipe "nova::api-metadata"
-include_recipe "nova::network"
+include_recipe "nova::libvirt"
 
 platform_options = node["nova"]["platform"]
 nova_compute_packages = platform_options["nova_compute_packages"]
@@ -44,11 +43,13 @@ nova_compute_packages.each do |pkg|
   end
 end
 
-cookbook_file "/etc/nova/nova-compute.conf" do
-  source "nova-compute.conf"
-  mode   00644
+if node["platform"] != "suse"
+  cookbook_file "/etc/nova/nova-compute.conf" do
+    source "nova-compute.conf"
+    mode   00644
 
-  action :create
+    action :create
+  end
 end
 
 service "nova-compute" do
@@ -58,5 +59,3 @@ service "nova-compute" do
 
   action :enable
 end
-
-include_recipe "nova::libvirt"
