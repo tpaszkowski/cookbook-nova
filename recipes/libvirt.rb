@@ -25,6 +25,17 @@ platform_options["libvirt_packages"].each do |pkg|
   end
 end
 
+# on suse nova-compute don't depends on any virtualization mechanism
+case node["platform"]
+when "suse"
+  if node["nova"]["libvirt"]["virt_type"] == "kvm"
+    package "kvm" do
+      action :install
+    end
+  end
+end
+
+
 # oh fedora...
 bash "create libvirtd group" do
   cwd "/tmp"
