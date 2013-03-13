@@ -50,6 +50,8 @@ end
 
 group "libvirt" do
   append true
+  members ["openstack-nova"]
+
   action :create
   only_if { platform? %w{suse} }
 end
