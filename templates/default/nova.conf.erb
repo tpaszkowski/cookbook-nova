@@ -4,7 +4,11 @@
 
 # LOGS/STATE
 verbose=true
+<% if node["nova"]["ratelimit"]["api"]["enabled"] -%>
 auth_strategy=keystone
+<% else -%>
+auth_strategy=keystone_nolimit
+<% end -%>
 dhcpbridge_flagfile=/etc/nova/nova.conf
 dhcpbridge=/usr/bin/nova-dhcpbridge
 logdir=/var/log/nova
@@ -61,6 +65,7 @@ image_service=nova.image.glance.GlanceImageService
 glance_api_servers=<%= @glance_api_ipaddress %>:<%= @glance_api_port %>
 
 ##### COMPUTE #####
+compute_driver=libvirt.LibvirtDriver
 compute_manager=nova.compute.manager.ComputeManager
 sql_connection=<%= @sql_connection %>
 connection_type=libvirt
