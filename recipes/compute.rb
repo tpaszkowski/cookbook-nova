@@ -22,6 +22,7 @@ class ::Chef::Recipe
 end
 
 include_recipe "nova::nova-common"
+include_recipe "nova::libvirt"
 
 platform_options = node["nova"]["platform"]
 nova_compute_packages = platform_options["nova_compute_packages"]
@@ -58,5 +59,3 @@ service "nova-compute" do
 
   action :enable
 end
-
-include_recipe "nova::libvirt"
