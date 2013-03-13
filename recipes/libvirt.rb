@@ -25,6 +25,17 @@ platform_options["libvirt_packages"].each do |pkg|
   end
 end
 
+# on suse nova-compute don't depends on any virtualization mechanism
+case node["platform"]
+when "suse"
+  if node["nova"]["libvirt"]["virt_type"] == "kvm"
+    package "kvm" do
+      action :install
+    end
+  end
+end
+
+
 # oh fedora...
 bash "create libvirtd group" do
   cwd "/tmp"
@@ -35,6 +46,14 @@ bash "create libvirtd group" do
   EOH
 
   only_if { platform? %w{fedora redhat centos} }
+end
+
+group "libvirt" do
+  append true
+  members ["openstack-nova"]
+
+  action :create
+  only_if { platform? %w{suse} }
 end
 
 # oh redhat
@@ -76,7 +95,8 @@ template "/etc/libvirt/libvirtd.conf" do
   group  "root"
   mode   00644
   variables(
-    :auth_tcp => node["nova"]["libvirt"]["auth_tcp"]
+    :auth_tcp => node["nova"]["libvirt"]["auth_tcp"],
+    :unix_sock_group => node["nova"]["libvirt"]["unix_sock_group"]
   )
 
   notifies :restart, "service[libvirt-bin]", :immediately
