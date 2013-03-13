@@ -195,6 +195,8 @@ when "fedora", "redhat", "centos", "suse" # :pragma-foodcritic: ~FC024 - won't f
     "nova_network_service" => "openstack-nova-network",
     "nova_scheduler_packages" => ["openstack-nova-scheduler"],
     "nova_scheduler_service" => "openstack-nova-scheduler",
+    "nova_conductor_packages" => ["openstack-nova-conductor"],
+    "nova_conductor_service" => "openstack-nova-conductor",
     "nova_vncproxy_packages" => ["openstack-nova-novncproxy"], # me thinks this is right?
     "nova_vncproxy_service" => "openstack-nova-novncproxy",
     "nova_vncproxy_consoleauth_packages" => ["openstack-nova-console"],
