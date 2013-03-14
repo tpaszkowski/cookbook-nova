@@ -142,6 +142,11 @@ default["nova"]["libvirt"]["remove_unused_base_images"] = true
 default["nova"]["libvirt"]["remove_unused_resized_minimum_age_seconds"] = 3600
 default["nova"]["libvirt"]["remove_unused_original_minimum_age_seconds"] = 3600
 default["nova"]["libvirt"]["checksum_base_images"] = false
+if node["platform"] == "suse"
+  default["nova"]["libvirt"]["unix_sock_group"] = "libvirt"
+else
+  default["nova"]["libvirt"]["unix_sock_group"] = "libvirtd"
+end
 default["nova"]["config"]["availability_zone"] = "nova"
 default["nova"]["config"]["storage_availability_zone"] = "nova"
 default["nova"]["config"]["default_schedule_zone"] = "nova"
