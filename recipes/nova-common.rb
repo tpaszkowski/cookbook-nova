@@ -61,9 +61,9 @@ db_user = node['nova']['db']['username']
 db_pass = db_password "nova"
 sql_connection = db_uri("compute", db_user, db_pass)
 
-rabbit_user = node["nova"]["rabbit"]["username"]
-rabbit_pass = user_password "rabbit"
-rabbit_vhost = node["nova"]["rabbit"]["vhost"]
+rabbit_user = rabbit_info && rabbit_info["username"] || node["nova"]["rabbit"]["username"]
+rabbit_pass = user_password rabbit_user
+rabbit_vhost = rabbit_info && rabbit_info["vhost"] || node["nova"]["rabbit"]["vhost"]
 
 keystone_service_role = node["nova"]["keystone_service_chef_role"]
 keystone = config_by_role keystone_service_role, "keystone"
