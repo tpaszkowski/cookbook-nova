@@ -218,6 +218,9 @@ when "fedora", "redhat", "centos", "suse" # :pragma-foodcritic: ~FC024 - won't f
   }
   if platform == "suse"
     default["nova"]["platform"]["common_packages"] = ["openstack-nova"]
+    default["nova"]["platform"]["kvm_packages"] = ["kvm"]
+    default["nova"]["platform"]["xen_packages"] = ["kernel-xen", "xen", "xen-tools"]
+    default["nova"]["platform"]["lxc_packages"] = ["lxc"]
   end
 
 when "ubuntu"
