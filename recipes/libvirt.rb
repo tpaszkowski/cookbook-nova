@@ -29,29 +29,40 @@ def set_boot_kernel_and_trigger_reboot(flavor='default')
   # only default and xen flavor is supported by this helper right now
   default_boot, current_default = 0, nil
 
-  # parse menu.lst, to find boot index for selected flavor
-  File.open('/boot/grub/menu.lst') do |f|
-    f.lines.each do |line|
-      current_default = line.scan(/\d/).first.to_i if line.start_with?('default')
+  if File.exists?("/boot/grub/menu.lst")
+    # parse menu.lst, to find boot index for selected flavor
+    File.open('/boot/grub/menu.lst') do |f|
+      f.lines.each do |line|
+        current_default = line.scan(/\d/).first.to_i if line.start_with?('default')
 
-      if line.start_with?('title')
-        if flavor.eql?('xen')
-          # found boot index
-          break if line.include?('Xen')
-        else
-          # take first kernel as default, unless we are searching for xen
-          # kernel
-          break
+        if line.start_with?('title')
+          if flavor.eql?('xen')
+            # found boot index
+            break if line.include?('Xen')
+          else
+            # take first kernel as default, unless we are searching for xen
+            # kernel
+            break
+          end
+          default_boot += 1
         end
-        default_boot += 1
       end
     end
-  end
 
-  # change default option for /boot/grub/menu.lst
-  unless current_default.eql?(default_boot)
-    puts "changed grub default to #{default_boot}"
-    %x[sed -i -e "s;^default.*;default #{default_boot};" /boot/grub/menu.lst]
+    # change default option for /boot/grub/menu.lst
+    unless current_default.eql?(default_boot)
+      puts "changed grub default to #{default_boot}"
+      %x[sed -i -e "s;^default.*;default #{default_boot};" /boot/grub/menu.lst]
+    end
+
+  elsif File.exists?("/etc/default/grub")
+    if system("grub2-set-default 'openSUSE GNU/Linux, with Xen hypervisor'")
+      puts "changed grub2 default to #{default_boot}"
+    else
+      raise "unable to change grub2 default to #{default_boot}"
+    end
+  else
+    raise "Unknown bootloader"
   end
 
   # trigger reboot through reboot_handler, if kernel-$flavor is not yet
