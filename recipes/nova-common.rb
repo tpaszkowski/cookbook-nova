@@ -72,6 +72,14 @@ ksadmin_tenant_name = keystone["admin_tenant_name"]
 ksadmin_user = keystone["admin_user"]
 ksadmin_pass = user_password ksadmin_user
 
+quantum_service_role = node["nova"]["quantum_service_chef_role"]
+quantum = config_by_role quantum_service_role, "quantum"
+
+quantum_tenant_name = quantum["service_tenant_name"]
+quantum_user = quantum["service_user"]
+quantum_pass = user_password quantum_user
+metadata_secret = service_password "metadata-api"
+
 # find the node attribute endpoint settings for the server holding a given role
 identity_admin_endpoint = endpoint "identity-admin"
 identity_endpoint = endpoint "identity-api"
@@ -81,6 +89,7 @@ novnc_proxy_endpoint = endpoint "compute-novnc"
 nova_api_endpoint = endpoint "compute-api" || {}
 ec2_public_endpoint = endpoint "compute-ec2-api" || {}
 image_endpoint = endpoint "image-api"
+quantum_endpoint = endpoint "quantum"
 
 Chef::Log.debug("nova::nova-common:rabbit_info|#{rabbit_info}")
 Chef::Log.debug("nova::nova-common:keystone|#{keystone}")
@@ -91,6 +100,7 @@ Chef::Log.debug("nova::nova-common:novnc_proxy_endpoint|#{novnc_proxy_endpoint.t
 Chef::Log.debug("nova::nova-common:nova_api_endpoint|#{::URI.decode nova_api_endpoint.to_s}")
 Chef::Log.debug("nova::nova-common:ec2_public_endpoint|#{ec2_public_endpoint.to_s}")
 Chef::Log.debug("nova::nova-common:image_endpoint|#{image_endpoint.to_s}")
+Chef::Log.debug("nova::nova-common:quantum_endpoint|#{quantum_endpoint.to_s}")
 
 template "/etc/nova/nova.conf" do
   source "nova.conf.erb"
@@ -110,6 +120,11 @@ template "/etc/nova/nova.conf" do
     :rabbit_port => rabbit_info["port"],
     :rabbit_virtual_host => rabbit_vhost,
     :identity_endpoint => identity_endpoint,
+    :quantum_endpoint => quantum_endpoint,
+    :quantum_tenant => quantum_tenant_name,
+    :quantum_user => quantum_user,
+    :quantum_password => quantum_pass,
+    :metadata_secret => metadata_secret,
     # TODO(jaypipes): No support here for >1 image API servers
     # with the glance_api_servers configuration option...
     :glance_api_ipaddress => image_endpoint.host,

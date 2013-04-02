@@ -4,6 +4,7 @@
 
 # LOGS/STATE
 verbose=true
+debug=true
 <% if node["nova"]["ratelimit"]["api"]["enabled"] -%>
 auth_strategy=keystone
 <% else -%>
@@ -37,6 +38,27 @@ default_schedule_zone=<%= node["nova"]["config"]["default_schedule_zone"] %>
 storage_availability_zone=<%= node["nova"]["config"]["storage_availability_zone"] %>
 
 ##### NETWORK #####
+<% if node["nova"]["networking_backend"] == "quantum" %>
+##### QUANTUM #####
+default_floating_pool=floating
+network_api_class=nova.network.quantumv2.api.API
+quantum_url=<%= @quantum_endpoint.scheme %>://<%= @quantum_endpoint.host %>:<%= @quantum_endpoint.port %><%= @quantum_endpoint.path %>
+quantum_auth_strategy=keystone
+quantum_admin_tenant_name=<%= @quantum_tenant %>
+quantum_admin_username=<%= @quantum_user %>
+quantum_admin_password=<%= @quantum_password %>
+quantum_admin_auth_url=<%= @identity_endpoint.scheme %>://<%= @identity_endpoint.host %>:<%= @identity_endpoint.port %><%= @identity_endpoint.path %>
+service_quantum_metadata_proxy=true
+<%= "quantum_metadata_proxy_shared_secret=#{@metadata_secret}" if @metadata_secret %>
+<% if node["nova"]["vif_driver"] == "openvswitch" %>
+##### Openvswitch VIF ####
+linuxnet_interface_driver=nova.network.linux_net.LinuxOVSInterfaceDriver
+firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
+<% else %>
+##### LinuxBridge VIF ####
+<% end %>
+<% else %>
+##### Legacy ######
 multi_host=<%= node["nova"]["network"]["multi_host"] %>
 network_manager=<%= node["nova"]["network"]["network_manager"] %>
 public_interface=<%= node["nova"]["network"]["public_interface"] %>
@@ -59,6 +81,7 @@ libvirt_use_virtio_for_bridges=false
 libvirt_use_virtio_for_bridges=true
 <% end -%>
 vlan_interface=<%= node["nova"]["network"]["vlan_interface"] %>
+<% end -%>
 
 ##### GLANCE #####
 image_service=nova.image.glance.GlanceImageService

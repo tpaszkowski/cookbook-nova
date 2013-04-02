@@ -17,6 +17,9 @@ default["nova"]["rabbit_server_chef_role"] = "rabbitmq-server"
 # The name of the Chef role that sets up the Keystone Service API
 default["nova"]["keystone_service_chef_role"] = "keystone"
 
+# The name of the Chef role that sets up the Keystone Service API
+default["nova"]["quantum_service_chef_role"] = "quantum"
+
 # This user's password is stored in an encrypted databag
 # and accessed with openstack-common cookbook library's
 # db_password routine.
@@ -54,6 +57,13 @@ default["nova"]["syslog"]["config_facility"] = "local1"
 default["nova"]["region"] = "RegionOne"
 
 default["nova"]["floating_cmd"] = "/usr/local/bin/add_floaters.py"
+
+# Nova networking backend
+default["nova"]["networking_backend_list"] = ["quantum", "legacy"]
+default["nova"]["networking_backend"] = "quantum"
+# vif driver
+default["nova"]["vif_driver_list"] = ["openvswitch", "linuxbridge"]
+default["nova"]["vif_driver"] = "openvswitch"
 
 # TODO(shep): This should probably be ['nova']['network']['fixed']
 default["nova"]["networks"] = [
